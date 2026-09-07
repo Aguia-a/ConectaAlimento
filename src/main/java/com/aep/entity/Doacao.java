@@ -1,7 +1,6 @@
 package com.aep.entity;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,7 +25,7 @@ import lombok.ToString;
 public class Doacao
 {
     @Id
-    private UUID id;
+    private String id;
 
     @Field("nome_doador")
     private String nomeDoador;
