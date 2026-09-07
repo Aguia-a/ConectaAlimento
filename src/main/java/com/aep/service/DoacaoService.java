@@ -19,12 +19,23 @@ public class DoacaoService
 
     public Doacao salvarDoacao(Doacao doacao)
     {
+        if (doacao.getId() == null)
+            doacao.setId(UUID.randomUUID());
+
         return doacaoRepository.save(doacao);
     }
 
     public List<Doacao> listarDoacoes()
     {
         return doacaoRepository.findAll();
+    }
+
+    public Doacao buscarDoacaoPorId(UUID id)
+    {
+        Doacao doacaoExistente = doacaoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Doação não Encontrada"));
+
+        return doacaoExistente;
     }
 
     public List<Doacao> listarDoacoesPorStatus(Status status)
@@ -39,8 +50,7 @@ public class DoacaoService
 
     public Doacao atualizarDoacao(UUID id, Doacao doacao)
     {
-        Doacao doacaoExistente = doacaoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Doação não Encontrada"));
+        Doacao doacaoExistente = buscarDoacaoPorId(id);
 
         doacaoExistente.setNomeDoador(doacao.getNomeDoador());
         doacaoExistente.setDescricaoAlimento(doacao.getDescricaoAlimento());
@@ -54,6 +64,7 @@ public class DoacaoService
 
     public void deletarDoacao(UUID id)
     {
-        doacaoRepository.deleteById(id);
+        Doacao doacao = buscarDoacaoPorId(id);
+        doacaoRepository.delete(doacao);
     }
 }
