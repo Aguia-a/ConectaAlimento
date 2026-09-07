@@ -129,11 +129,11 @@ Depois que o Spring Boot iniciar, o menu sera exibido no terminal:
 
 ```text
 === Conecta Alimento ===
-1 - Cadastrar doacao
-2 - Listar doacoes
-3 - Buscar por status
-4 - Atualizar doacao
-5 - Excluir doacao
+1 - Cadastrar doação
+2 - Listar doações
+3 - Buscar doação
+4 - Atualizar doação
+5 - Excluir doação
 0 - Sair
 ```
 

@@ -29,7 +29,7 @@ public class AppUi
             System.out.println("\n=== Conecta Alimento ===");
             System.out.println("1 - Cadastrar doação");
             System.out.println("2 - Listar doações");
-            System.out.println("3 - Buscar por status");
+            System.out.println("3 - Buscar doação");
             System.out.println("4 - Atualizar doação");
             System.out.println("5 - Excluir doação");
             System.out.println("0 - Sair");
