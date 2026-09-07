@@ -37,11 +37,6 @@ public class DoacaoService
         return doacaoRepository.findByNomeDoadorContainingIgnoreCase(nomeDoador);
     }
 
-    public List<Doacao> listarDoacoesPorDescricao(String descricao)
-    {
-        return doacaoRepository.findByDescricaoAlimentoContainingIgnoreCase(descricao);
-    }
-
     public Doacao atualizarDoacao(UUID id, Doacao doacao)
     {
         Doacao doacaoExistente = doacaoRepository.findById(id)
