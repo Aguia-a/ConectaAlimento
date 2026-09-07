@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -86,7 +85,30 @@ public class AppUi
     private void listarDoacoes()
     {
         List<Doacao> doacoes = doacaoService.listarDoacoes();
-        doacoes.forEach(doacao -> System.out.println(doacao) );
+        mostrarDoacoes(doacoes);
+    }
+
+    private void mostrarDoacoes(List<Doacao> doacoes)
+    {
+        if (doacoes.isEmpty())
+        {
+            System.out.println("Nenhuma doação encontrada.");
+            return;
+        }
+
+        doacoes.forEach(this::mostrarDoacao);
+    }
+
+    private void mostrarDoacao(Doacao doacao)
+    {
+        System.out.println("\n----------------------------------------");
+        System.out.println("ID: " + doacao.getId());
+        System.out.println("Doador: " + doacao.getNomeDoador());
+        System.out.println("Alimento: " + doacao.getDescricaoAlimento());
+        System.out.println("Quantidade: " + doacao.getQuantidade() + " " + doacao.getUnidadeDeMedida());
+        System.out.println("Validade: " + doacao.getDataDeValidade());
+        System.out.println("Status: " + doacao.getStatus());
+        System.out.println("----------------------------------------");
     }
 
     private void buscarDoacao()
@@ -120,11 +142,11 @@ public class AppUi
     private void buscarDoacaoPorId()
     {
         System.out.print("Digite o ID da Doação > ");
-        UUID id = UUID.fromString(scanner.nextLine());
+        String id = scanner.nextLine();
 
         Doacao doacao = doacaoService.buscarDoacaoPorId(id);
 
-        System.out.println(doacao);
+        mostrarDoacao(doacao);
     }
 
     private void buscarDoacaoPorStatus()
@@ -133,7 +155,7 @@ public class AppUi
         Status status = Status.valueOf( scanner.nextLine().toUpperCase() );
 
         List<Doacao> doacoes = doacaoService.listarDoacoesPorStatus(status);
-        doacoes.forEach(System.out::println);
+        mostrarDoacoes(doacoes);
     }
 
     private void buscarDoacaoPorDoador()
@@ -142,13 +164,13 @@ public class AppUi
         String doador = scanner.nextLine();
 
         List<Doacao> doacoes = doacaoService.listarDoacoesPorDoador(doador);
-        doacoes.forEach(System.out::println);
+        mostrarDoacoes(doacoes);
     }
 
     private void atualizarDoacao()
     {
         System.out.print("Digite o ID da Doação > ");
-        UUID id = UUID.fromString(scanner.nextLine());
+        String id = scanner.nextLine();
 
         Doacao doacao = doacaoService.buscarDoacaoPorId(id);
 
@@ -161,7 +183,7 @@ public class AppUi
     private void deletarDoacao()
     {
         System.out.print("Digite o ID da Doação > ");
-        UUID id = UUID.fromString(scanner.nextLine());
+        String id = scanner.nextLine();
 
         doacaoService.deletarDoacao(id);
         System.out.println("Doação Deletada.");
