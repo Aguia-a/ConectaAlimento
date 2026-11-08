@@ -1,6 +1,8 @@
 package com.aep.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -44,4 +46,11 @@ public class Doacao
 
     @Field("status")
     private Status status;
+
+    @Field("instituicao_id")
+    private String instituicaoId;
+
+    @Field("itens")
+    @Builder.Default
+    private List<ItemDoacao> itens = new ArrayList<>();
 }
