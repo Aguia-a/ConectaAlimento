@@ -24,6 +24,17 @@ O software atualmente permite:
 - atualizar uma doacao existente;
 - excluir uma doacao existente.
 
+## Evolucao da segunda entrega
+
+A segunda versao evolui a PoC para atender aos requisitos do segundo semestre:
+
+- a colecao `instituicoes` armazena as instituicoes beneficiarias;
+- uma doacao referencia uma instituicao por meio de `instituicao_id`;
+- `Instituicao` possui o subdocumento embutido `endereco`;
+- `Doacao` possui a lista de subdocumentos `itens`;
+- a opcao 6 do menu gerencia instituicoes;
+- a opcao 7 cadastra uma doacao com relacionamento e itens detalhados.
+
 Os status disponiveis sao:
 
 - `DISPONIVEL`;
@@ -58,6 +69,14 @@ src/main/java/com/aep/
 |   `-- DoacaoService.java
 `-- ui/
         `-- AppUi.java
+|-- entity/
+|   |-- Endereco.java
+|   |-- Instituicao.java
+|   `-- ItemDoacao.java
+|-- repository/
+|   `-- InstituicaoRepository.java
+`-- service/
+    `-- InstituicaoService.java
 ```
 
 - **UI:** apresenta o menu de console e coleta os dados do usuario.
@@ -71,7 +90,10 @@ O projeto utiliza o MongoDB com a seguinte estrutura:
 
 ```text
 Banco: conecta_alimento
-Colecao: doacoes
+Colecoes:
+
+- `doacoes`;
+- `instituicoes`.
 ```
 
 Exemplo de documento:
@@ -84,11 +106,40 @@ Exemplo de documento:
     "quantidade": 20,
     "unidade_de_medida": "kg",
     "data_de_validade": "2026-12-31",
-    "status": "DISPONIVEL"
+    "status": "DISPONIVEL",
+    "instituicao_id": "instituicao-001",
+    "itens": [
+        {
+            "descricao": "Arroz",
+            "quantidade": 20,
+            "unidadeDeMedida": "kg",
+            "dataDeValidade": "2026-12-31"
+        }
+    ]
 }
 ```
 
 O ID e gerado como UUID no Java e persistido como texto no MongoDB para evitar incompatibilidades de representacao BSON.
+
+Exemplo de documento da colecao `instituicoes`, com endereco embutido:
+
+```json
+{
+    "_id": "instituicao-001",
+    "nome": "Casa de Apoio Esperanca",
+    "email": "contato@esperanca.org",
+    "telefone": "(44) 99999-9999",
+    "endereco": {
+        "rua": "Rua A",
+        "numero": "100",
+        "cidade": "Maringa",
+        "estado": "PR",
+        "cep": "87000-000"
+    }
+}
+```
+
+O relacionamento e feito por referencia: `doacoes.instituicao_id` aponta para `instituicoes._id`. Os itens de cada doacao sao subdocumentos embutidos na propria doacao.
 
 ## Pre-requisitos
 
@@ -174,4 +225,22 @@ O comando reproduzivel para gerar a cobertura e:
 .\mvnw.cmd clean test
 ```
 
-Na validacao desta versao, foram executados 16 testes, sem falhas, com cobertura de instrucoes de 95,6%, acima do minimo de 70% exigido.
+Na validacao desta versao, foram executados 25 testes, sem falhas, com cobertura de instrucoes de 85,4%, acima do minimo de 70% exigido.
+
+Para executar os testes, configure uma URI MongoDB valida. Em ambiente local:
+
+```powershell
+$env:MONGODB_URI='mongodb://localhost:27017/conecta_alimento'
+.\mvnw.cmd clean test
+```
+
+O relatorio JaCoCo fica em `target/site/jacoco/index.html`.
+
+## Versionamento das entregas
+
+- Primeira entrega: tag `v1.0.0`.
+- Segunda entrega: criar e publicar uma tag final, por exemplo `v2.0.0`, apos a validacao.
+
+## Quadro de tarefas
+
+O quadro Kanban da segunda entrega deve acompanhar a modelagem, implementacao, testes, documentacao e preparacao da demonstracao.
