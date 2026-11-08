@@ -5,20 +5,33 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.aep.entity.Doacao;
+import com.aep.entity.Endereco;
+import com.aep.entity.Instituicao;
+import com.aep.entity.ItemDoacao;
 import com.aep.enums.Status;
 import com.aep.service.DoacaoService;
-
-import lombok.RequiredArgsConstructor;
+import com.aep.service.InstituicaoService;
 
 @Component 
-@RequiredArgsConstructor
 public class AppUi 
 {
     private final DoacaoService doacaoService;
+    private final InstituicaoService instituicaoService;
     private final Scanner scanner = new Scanner(System.in);
+
+    @Autowired
+    public AppUi(DoacaoService doacaoService, InstituicaoService instituicaoService) {
+        this.doacaoService = doacaoService;
+        this.instituicaoService = instituicaoService;
+    }
+
+    public AppUi(DoacaoService doacaoService) {
+        this(doacaoService, null);
+    }
 
     public void iniciar()
     {
@@ -32,6 +45,8 @@ public class AppUi
             System.out.println("3 - Buscar doação");
             System.out.println("4 - Atualizar doação");
             System.out.println("5 - Excluir doação");
+            System.out.println("6 - Gerenciar instituições");
+            System.out.println("7 - Cadastrar doação com itens e instituição");
             System.out.println("0 - Sair");
             System.out.print("Escolha uma opção: ");
 
@@ -43,6 +58,8 @@ public class AppUi
                 case 3 -> buscarDoacao();
                 case 4 -> atualizarDoacao();
                 case 5 -> deletarDoacao();
+                case 6 -> gerenciarInstituicoes();
+                case 7 -> cadastrarDoacaoComplexa();
                 case 0 -> System.out.println("Encerrando...");
                 default -> System.out.println("Opção inválida!");
             }
@@ -57,6 +74,42 @@ public class AppUi
 
         Doacao salvo = doacaoService.salvarDoacao(doacao);
         System.out.println("Doação Cadastrada: " + salvo.getId());
+    }
+
+    private void cadastrarDoacaoComplexa()
+    {
+        Doacao doacao = setarDadosDoacao(new Doacao());
+        System.out.print("ID da instituição relacionada (Enter para ignorar) > ");
+        String instituicaoId = scanner.nextLine();
+        if (!instituicaoId.isBlank())
+        {
+            if (instituicaoService == null)
+            {
+                System.out.println("Serviço de instituições indisponível.");
+                return;
+            }
+            instituicaoService.buscarPorId(instituicaoId);
+            doacao.setInstituicaoId(instituicaoId);
+        }
+
+        System.out.print("Quantidade de itens detalhados (0 para ignorar) > ");
+        int quantidadeItens = Integer.parseInt(scanner.nextLine());
+        for (int i = 0; i < quantidadeItens; i++)
+        {
+            System.out.print("Descrição do item " + (i + 1) + " > ");
+            String descricao = scanner.nextLine();
+            System.out.print("Quantidade > ");
+            Integer quantidade = Integer.parseInt(scanner.nextLine());
+            System.out.print("Unidade de medida > ");
+            String unidade = scanner.nextLine();
+            System.out.print("Data de validade (YYYY-MM-DD) > ");
+            LocalDate validade = LocalDate.parse(scanner.nextLine());
+            doacao.getItens().add(ItemDoacao.builder().descricao(descricao).quantidade(quantidade)
+                .unidadeDeMedida(unidade).dataDeValidade(validade).build());
+        }
+
+        Doacao salvo = doacaoService.salvarDoacao(doacao);
+        System.out.println("Doação complexa cadastrada: " + salvo.getId());
     }
 
     private Doacao setarDadosDoacao(Doacao doacao)
@@ -80,6 +133,78 @@ public class AppUi
         doacao.setStatus(Status.valueOf(scanner.nextLine().toUpperCase()));
 
         return doacao;
+    }
+
+    private void gerenciarInstituicoes()
+    {
+        if (instituicaoService == null)
+        {
+            System.out.println("Serviço de instituições indisponível.");
+            return;
+        }
+
+        Integer opcao;
+        do
+        {
+            System.out.println("\n=== INSTITUIÇÕES ===");
+            System.out.println("1 - Cadastrar instituição");
+            System.out.println("2 - Listar instituições");
+            System.out.println("3 - Buscar instituição por nome");
+            System.out.println("0 - Voltar");
+            opcao = Integer.parseInt(scanner.nextLine());
+
+            switch (opcao)
+            {
+                case 1 -> cadastrarInstituicao();
+                case 2 -> instituicaoService.listar().forEach(this::mostrarInstituicao);
+                case 3 -> instituicaoService.buscarPorNome(scanner.nextLine()).forEach(this::mostrarInstituicao);
+                case 0 -> System.out.println("Voltando...");
+                default -> System.out.println("Opção inválida!");
+            }
+        } while (opcao != 0);
+    }
+
+    private void cadastrarInstituicao()
+    {
+        System.out.print("Nome da instituição > ");
+        String nome = scanner.nextLine();
+        System.out.print("E-mail > ");
+        String email = scanner.nextLine();
+        System.out.print("Telefone > ");
+        String telefone = scanner.nextLine();
+        System.out.print("Rua > ");
+        String rua = scanner.nextLine();
+        System.out.print("Número > ");
+        String numero = scanner.nextLine();
+        System.out.print("Cidade > ");
+        String cidade = scanner.nextLine();
+        System.out.print("Estado > ");
+        String estado = scanner.nextLine();
+        System.out.print("CEP > ");
+        String cep = scanner.nextLine();
+
+        Instituicao instituicao = Instituicao.builder()
+            .nome(nome)
+            .email(email)
+            .telefone(telefone)
+            .endereco(Endereco.builder().rua(rua).numero(numero).cidade(cidade)
+                .estado(estado).cep(cep).build())
+            .build();
+
+        System.out.println("Instituição cadastrada: " + instituicaoService.salvar(instituicao).getId());
+    }
+
+    private void mostrarInstituicao(Instituicao instituicao)
+    {
+        System.out.println("\nInstituição: " + instituicao.getNome());
+        System.out.println("ID: " + instituicao.getId());
+        System.out.println("Contato: " + instituicao.getEmail() + " | " + instituicao.getTelefone());
+        if (instituicao.getEndereco() != null)
+        {
+            Endereco endereco = instituicao.getEndereco();
+            System.out.println("Endereço: " + endereco.getRua() + ", " + endereco.getNumero()
+                + " - " + endereco.getCidade() + "/" + endereco.getEstado());
+        }
     }
 
     private void listarDoacoes()
@@ -108,6 +233,10 @@ public class AppUi
         System.out.println("Quantidade: " + doacao.getQuantidade() + " " + doacao.getUnidadeDeMedida());
         System.out.println("Validade: " + doacao.getDataDeValidade());
         System.out.println("Status: " + doacao.getStatus());
+        if (doacao.getInstituicaoId() != null)
+            System.out.println("Instituição relacionada: " + doacao.getInstituicaoId());
+        if (doacao.getItens() != null && !doacao.getItens().isEmpty())
+            System.out.println("Itens detalhados: " + doacao.getItens().size());
         System.out.println("----------------------------------------");
     }
 
