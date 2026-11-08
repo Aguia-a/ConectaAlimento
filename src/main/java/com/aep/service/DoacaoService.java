@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.aep.entity.Doacao;
+import com.aep.entity.ItemDoacao;
 import com.aep.enums.Status;
 import com.aep.repository.DoacaoRepository;
 
@@ -19,6 +20,7 @@ public class DoacaoService
 
     public Doacao salvarDoacao(Doacao doacao)
     {
+        validar(doacao);
         if (doacao.getId() == null)
             doacao.setId(UUID.randomUUID().toString());
 
@@ -48,8 +50,14 @@ public class DoacaoService
         return doacaoRepository.findByNomeDoadorContainingIgnoreCase(nomeDoador);
     }
 
+    public List<Doacao> listarDoacoesPorInstituicao(String instituicaoId)
+    {
+        return doacaoRepository.findByInstituicaoId(instituicaoId);
+    }
+
     public Doacao atualizarDoacao(String id, Doacao doacao)
     {
+        validar(doacao);
         Doacao doacaoExistente = buscarDoacaoPorId(id);
 
         doacaoExistente.setNomeDoador(doacao.getNomeDoador());
@@ -58,6 +66,8 @@ public class DoacaoService
         doacaoExistente.setUnidadeDeMedida(doacao.getUnidadeDeMedida());
         doacaoExistente.setDataDeValidade(doacao.getDataDeValidade());
         doacaoExistente.setStatus(doacao.getStatus());
+        doacaoExistente.setInstituicaoId(doacao.getInstituicaoId());
+        doacaoExistente.setItens(doacao.getItens());
 
         return doacaoRepository.save(doacaoExistente);
     }
@@ -66,5 +76,34 @@ public class DoacaoService
     {
         Doacao doacao = buscarDoacaoPorId(id);
         doacaoRepository.delete(doacao);
+    }
+
+    private void validar(Doacao doacao)
+    {
+        if (doacao == null || vazio(doacao.getNomeDoador())
+            || vazio(doacao.getUnidadeDeMedida())
+            || doacao.getQuantidade() == null || doacao.getQuantidade() <= 0
+            || doacao.getDataDeValidade() == null || doacao.getStatus() == null)
+        {
+            throw new IllegalArgumentException("Dados da doação são inválidos");
+        }
+
+        if (doacao.getItens() != null)
+        {
+            for (ItemDoacao item : doacao.getItens())
+            {
+                if (item == null || vazio(item.getDescricao())
+                    || item.getQuantidade() == null || item.getQuantidade() <= 0
+                    || vazio(item.getUnidadeDeMedida()) || item.getDataDeValidade() == null)
+                {
+                    throw new IllegalArgumentException("Itens da doação são inválidos");
+                }
+            }
+        }
+    }
+
+    private boolean vazio(String valor)
+    {
+        return valor == null || valor.isBlank();
     }
 }
