@@ -17,14 +17,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.aep.entity.Doacao;
+import com.aep.entity.Instituicao;
 import com.aep.enums.Status;
 import com.aep.service.DoacaoService;
+import com.aep.service.InstituicaoService;
 
 @ExtendWith(MockitoExtension.class)
 class AppUiTest {
 
     @Mock
     private DoacaoService doacaoService;
+
+    @Mock
+    private InstituicaoService instituicaoService;
 
     private InputStream entradaOriginal;
 
@@ -94,10 +99,35 @@ class AppUiTest {
         verify(doacaoService).deletarDoacao("id-1");
     }
 
+    @Test
+    void deveCadastrarInstituicaoPeloMenu() {
+        Instituicao instituicao = Instituicao.builder().id("instituicao-1").build();
+        when(instituicaoService.salvar(any(Instituicao.class))).thenReturn(instituicao);
+
+        executar("6", "1", "Casa Esperanca", "contato@esperanca.org", "44999999999",
+            "Rua A", "100", "Maringa", "PR", "87000000", "0", "0");
+
+        verify(instituicaoService).salvar(any(Instituicao.class));
+    }
+
+    @Test
+    void deveCadastrarDoacaoComItensEInstituicao() {
+        Doacao doacao = criarDoacao("id-1");
+        when(doacaoService.salvarDoacao(any(Doacao.class))).thenReturn(doacao);
+        when(instituicaoService.buscarPorId("instituicao-1"))
+            .thenReturn(Instituicao.builder().id("instituicao-1").nome("Casa Esperanca").build());
+
+        executar("7", "Doador teste", "Arroz", "kg", "5", "2026-12-31", "DISPONIVEL",
+            "instituicao-1", "1", "Feijao", "10", "kg", "2027-01-01", "0");
+
+        verify(instituicaoService).buscarPorId("instituicao-1");
+        verify(doacaoService).salvarDoacao(any(Doacao.class));
+    }
+
     private void executar(String... entradas) {
         String conteudo = String.join(System.lineSeparator(), entradas) + System.lineSeparator();
         System.setIn(new ByteArrayInputStream(conteudo.getBytes()));
-        new AppUi(doacaoService).iniciar();
+        new AppUi(doacaoService, instituicaoService).iniciar();
     }
 
     private Doacao criarDoacao(String id) {
