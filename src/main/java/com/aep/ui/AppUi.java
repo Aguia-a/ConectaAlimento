@@ -250,6 +250,7 @@ public class AppUi
             System.out.println("1 - POR ID");
             System.out.println("2 - POR STATUS");
             System.out.println("3 - POR DOADOR");
+            System.out.println("4 - POR INSTITUIÇÃO");
             System.out.println("0 - SAIR");
 
             opcao = Integer.parseInt(scanner.nextLine());
@@ -259,6 +260,7 @@ public class AppUi
                 case 1 -> buscarDoacaoPorId();
                 case 2 -> buscarDoacaoPorStatus();
                 case 3 -> buscarDoacaoPorDoador();
+                case 4 -> buscarDoacaoPorInstituicao();
                 case 0 -> System.out.println("Saindo...");
                 default -> System.out.println("Opção Inválida");
             }
@@ -293,6 +295,15 @@ public class AppUi
         String doador = scanner.nextLine();
 
         List<Doacao> doacoes = doacaoService.listarDoacoesPorDoador(doador);
+        mostrarDoacoes(doacoes);
+    }
+
+    private void buscarDoacaoPorInstituicao()
+    {
+        System.out.print("Digite o ID da Instituição > ");
+        String instituicaoId = scanner.nextLine();
+
+        List<Doacao> doacoes = doacaoService.listarDoacoesPorInstituicao(instituicaoId);
         mostrarDoacoes(doacoes);
     }
 

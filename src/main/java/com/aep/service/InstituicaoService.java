@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.aep.entity.Endereco;
 import com.aep.entity.Instituicao;
+import com.aep.repository.DoacaoRepository;
 import com.aep.repository.InstituicaoRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class InstituicaoService {
 
     private final InstituicaoRepository instituicaoRepository;
+    private final DoacaoRepository doacaoRepository;
 
     public Instituicao salvar(Instituicao instituicao) {
         validar(instituicao);
@@ -49,7 +51,11 @@ public class InstituicaoService {
     }
 
     public void excluir(String id) {
-        instituicaoRepository.delete(buscarPorId(id));
+        Instituicao instituicao = buscarPorId(id);
+        if (doacaoRepository.existsByInstituicaoId(id)) {
+            throw new IllegalStateException("Instituição possui doações relacionadas");
+        }
+        instituicaoRepository.delete(instituicao);
     }
 
     private void validar(Instituicao instituicao) {
