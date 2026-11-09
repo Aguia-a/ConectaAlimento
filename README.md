@@ -138,10 +138,10 @@ Exemplo de documento da colecao `instituicoes`, com endereco embutido:
 
 O relacionamento e feito por referencia: `doacoes.instituicao_id` aponta para `instituicoes._id`. Os itens de cada doacao sao subdocumentos embutidos na propria doacao.
 
-## Pre-requisitos
+## Pré-requisitos
 
 - JDK 25;
-- Servidor MongoDB (Deve ser configurado no .env);
+- Servidor MongoDB; sem configuração, os testes usam `mongodb://localhost:27017/conecta_alimento`;
 
 ## Configuracao do MongoDB
 
