@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.aep.entity.Endereco;
 import com.aep.entity.Instituicao;
 import com.aep.repository.InstituicaoRepository;
+import com.aep.repository.DoacaoRepository;
 
 @ExtendWith(MockitoExtension.class)
 class InstituicaoServiceTest {
@@ -26,11 +27,14 @@ class InstituicaoServiceTest {
     @Mock
     private InstituicaoRepository instituicaoRepository;
 
+    @Mock
+    private DoacaoRepository doacaoRepository;
+
     private InstituicaoService instituicaoService;
 
     @BeforeEach
     void setUp() {
-        instituicaoService = new InstituicaoService(instituicaoRepository);
+        instituicaoService = new InstituicaoService(instituicaoRepository, doacaoRepository);
     }
 
     @Test
@@ -90,10 +94,21 @@ class InstituicaoServiceTest {
     void deveExcluirInstituicao() {
         Instituicao instituicao = instituicaoValida();
         when(instituicaoRepository.findById("id-1")).thenReturn(Optional.of(instituicao));
+        when(doacaoRepository.existsByInstituicaoId("id-1")).thenReturn(false);
 
         instituicaoService.excluir("id-1");
 
         verify(instituicaoRepository).delete(instituicao);
+    }
+
+    @Test
+    void naoDeveExcluirInstituicaoComDoacoesRelacionadas() {
+        Instituicao instituicao = instituicaoValida();
+        when(instituicaoRepository.findById("id-1")).thenReturn(Optional.of(instituicao));
+        when(doacaoRepository.existsByInstituicaoId("id-1")).thenReturn(true);
+
+        assertThrows(IllegalStateException.class, () -> instituicaoService.excluir("id-1"));
+        verify(instituicaoRepository, never()).delete(instituicao);
     }
 
     @Test

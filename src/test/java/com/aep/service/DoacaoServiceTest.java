@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.aep.entity.Doacao;
 import com.aep.enums.Status;
 import com.aep.repository.DoacaoRepository;
+import com.aep.repository.InstituicaoRepository;
 
 @ExtendWith(MockitoExtension.class)
 class DoacaoServiceTest {
@@ -29,11 +30,14 @@ class DoacaoServiceTest {
     @Mock
     private DoacaoRepository doacaoRepository;
 
+    @Mock
+    private InstituicaoRepository instituicaoRepository;
+
     private DoacaoService doacaoService;
 
     @BeforeEach
     void setUp() {
-        doacaoService = new DoacaoService(doacaoRepository);
+        doacaoService = new DoacaoService(doacaoRepository, instituicaoRepository);
     }
 
     @Test
@@ -115,6 +119,36 @@ class DoacaoServiceTest {
 
         assertSame(doacoes, resultado);
         verify(doacaoRepository).findByNomeDoadorContainingIgnoreCase("mercado");
+    }
+
+    @Test
+    void deveListarDoacoesPorInstituicao() {
+        List<Doacao> doacoes = List.of(criarDoacao("id-1"));
+        when(doacaoRepository.findByInstituicaoId("instituicao-1")).thenReturn(doacoes);
+
+        List<Doacao> resultado = doacaoService.listarDoacoesPorInstituicao("instituicao-1");
+
+        assertSame(doacoes, resultado);
+        verify(doacaoRepository).findByInstituicaoId("instituicao-1");
+    }
+
+    @Test
+    void deveRejeitarDoacaoComInstituicaoInexistente() {
+        Doacao doacao = criarDoacao(null);
+        doacao.setInstituicaoId("inexistente");
+        when(instituicaoRepository.existsById("inexistente")).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> doacaoService.salvarDoacao(doacao));
+        verify(doacaoRepository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void deveRejeitarDoacaoSemDescricao() {
+        Doacao doacao = criarDoacao(null);
+        doacao.setDescricaoAlimento(" ");
+
+        assertThrows(IllegalArgumentException.class, () -> doacaoService.salvarDoacao(doacao));
+        verify(doacaoRepository, never()).save(any(Doacao.class));
     }
 
     @Test

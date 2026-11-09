@@ -60,29 +60,26 @@ A aplicacao utiliza uma organizacao em camadas:
 src/main/java/com/aep/
 |-- ConectaAlimentoApplication.java
 |-- entity/
-|   `-- Doacao.java
-|-- enums/
-|   `-- Status.java
-|-- repository/
-|   `-- DoacaoRepository.java
-|-- service/
-|   `-- DoacaoService.java
-`-- ui/
-        `-- AppUi.java
-|-- entity/
+|   |-- Doacao.java
 |   |-- Endereco.java
 |   |-- Instituicao.java
 |   `-- ItemDoacao.java
+|-- enums/
+|   `-- Status.java
 |-- repository/
+|   |-- DoacaoRepository.java
 |   `-- InstituicaoRepository.java
-`-- service/
-    `-- InstituicaoService.java
+|-- service/
+|   |-- DoacaoService.java
+|   `-- InstituicaoService.java
+`-- ui/
+   `-- AppUi.java
 ```
 
 - **UI:** apresenta o menu de console e coleta os dados do usuario.
 - **Service:** concentra as operacoes e regras da aplicacao.
 - **Repository:** acessa o MongoDB por meio do Spring Data.
-- **Entity:** representa o documento persistido na colecao `doacoes`.
+- **Entity:** representa documentos, subdocumentos e listas persistidos nas coleções `doacoes` e `instituicoes`.
 
 ## Banco de dados NoSQL
 
@@ -185,6 +182,8 @@ Depois que o Spring Boot iniciar, o menu sera exibido no terminal:
 3 - Buscar doação
 4 - Atualizar doação
 5 - Excluir doação
+6 - Gerenciar instituições
+7 - Cadastrar doação com itens e instituição
 0 - Sair
 ```
 
@@ -205,9 +204,14 @@ No Linux ou macOS:
 Os testes cobrem:
 
 - regras do `DoacaoService`;
+- regras do `InstituicaoService`;
 - geracao e preservacao do ID;
 - busca, atualizacao e exclusao;
 - buscas por status e doador;
+- buscas por instituição;
+- validação de doações e instituições;
+- relacionamento e proteção contra referências inválidas;
+- documentos complexos com endereço e itens;
 - fluxos principais da UI de console;
 - carregamento do contexto Spring.
 
@@ -239,7 +243,7 @@ O relatorio JaCoCo fica em `target/site/jacoco/index.html`.
 ## Versionamento das entregas
 
 - Primeira entrega: tag `v1.0.0`.
-- Segunda entrega: criar e publicar uma tag final, por exemplo `v2.0.0`, apos a validacao.
+- Segunda entrega: tag `v2.0.0` na branch `feature/second-delivery-docs`.
 
 ## Quadro de tarefas
 

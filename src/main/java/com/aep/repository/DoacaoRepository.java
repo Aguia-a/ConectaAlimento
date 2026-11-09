@@ -14,4 +14,6 @@ public interface DoacaoRepository extends MongoRepository<Doacao, String>
     List<Doacao> findByNomeDoadorContainingIgnoreCase(String nomeDoador);
 
     List<Doacao> findByInstituicaoId(String instituicaoId);
+
+    boolean existsByInstituicaoId(String instituicaoId);
 }

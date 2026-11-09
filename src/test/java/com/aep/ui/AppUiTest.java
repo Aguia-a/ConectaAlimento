@@ -73,12 +73,15 @@ class AppUiTest {
         when(doacaoService.buscarDoacaoPorId("id-1")).thenReturn(doacao);
         when(doacaoService.listarDoacoesPorStatus(Status.DISPONIVEL)).thenReturn(List.of(doacao));
         when(doacaoService.listarDoacoesPorDoador("Doador")).thenReturn(List.of(doacao));
+        when(doacaoService.listarDoacoesPorInstituicao("instituicao-1")).thenReturn(List.of(doacao));
 
-        executar("3", "1", "id-1", "2", "DISPONIVEL", "3", "Doador", "0", "0");
+        executar("3", "1", "id-1", "2", "DISPONIVEL", "3", "Doador",
+            "4", "instituicao-1", "0", "0");
 
         verify(doacaoService).buscarDoacaoPorId("id-1");
         verify(doacaoService).listarDoacoesPorStatus(Status.DISPONIVEL);
         verify(doacaoService).listarDoacoesPorDoador("Doador");
+        verify(doacaoService).listarDoacoesPorInstituicao("instituicao-1");
     }
 
     @Test

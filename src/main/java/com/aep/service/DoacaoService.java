@@ -9,6 +9,7 @@ import com.aep.entity.Doacao;
 import com.aep.entity.ItemDoacao;
 import com.aep.enums.Status;
 import com.aep.repository.DoacaoRepository;
+import com.aep.repository.InstituicaoRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class DoacaoService 
 {
     private final DoacaoRepository doacaoRepository;
+    private final InstituicaoRepository instituicaoRepository;
 
     public Doacao salvarDoacao(Doacao doacao)
     {
@@ -81,6 +83,7 @@ public class DoacaoService
     private void validar(Doacao doacao)
     {
         if (doacao == null || vazio(doacao.getNomeDoador())
+            || vazio(doacao.getDescricaoAlimento())
             || vazio(doacao.getUnidadeDeMedida())
             || doacao.getQuantidade() == null || doacao.getQuantidade() <= 0
             || doacao.getDataDeValidade() == null || doacao.getStatus() == null)
@@ -98,6 +101,12 @@ public class DoacaoService
                 {
                     throw new IllegalArgumentException("Itens da doação são inválidos");
                 }
+            }
+
+            if (!vazio(doacao.getInstituicaoId())
+                && !instituicaoRepository.existsById(doacao.getInstituicaoId()))
+            {
+                throw new IllegalArgumentException("Instituição relacionada não encontrada");
             }
         }
     }
